@@ -1,7 +1,7 @@
 3 6
-lib1 30
-lib2 40
+lib1 80
+lib2 30
 lib3 50
-lib4 60
-lib5 70
-lib6 80
+lib4 70
+lib5 40
+lib6 60
