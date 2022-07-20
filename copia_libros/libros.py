@@ -13,6 +13,7 @@ otro escritor desde l4 y l6 y así sucesivamente.
 """
 
 # se importa libreria math
+import numpy as np;
 import math;
 
 # Se abre y lee el archivo (entrada).
@@ -27,126 +28,117 @@ content[2].split()[1]
 """
 
 # funciones auxiliares
+def translate(W, sol):
+    """
+    devuelve el arreglo de pesos asociados a los indices del arreglo solución
+    ejemplo:
+    entrada: [1, 4, 5]
+    salida: [275.0, 335.0, 350.0]
+    Esto significa que para un total de 6 libros (considerando que el máximo indice es 5):
+    el autor 1 toma 2 libros que tienen 275 páginas,
+    el autor 2 toma 3 libros que tienen 335 páginas y 
+    el autor 3 toma 1 libros que tiene 350 páginas.
+    """
+    sols = [];
+    sols.append(W[0][sol[0]]);
+    for i in range(1, n):
+        c = abs(sol[i-1] - sol[i]) - 1;
+        sols.append(W[sol[i]-c][sol[i]]);
+    return sols;
+
+def optimal_sol(W, sol, c, maximum, best, prevsol):
+    """
+    devuelve el rango de libros que se asignará a cada escritor en la 
+    solución optima.
+    ej: [3, 4, 6]
+    significa:
+    autor 1 -> lib 1 - lib 3
+    autor 2 -> lib 4 - lib 5
+    autor 3 -> lib 6
+    """
+    sols = translate(W, sol);
+    best = max(sols);
+    print("c",c,"n",n,"best",best,"max",maximum,"sol",sol,"sols",sols,"prevsol",prevsol)
+    if c==n:
+        return sol;
+    if best < maximum:
+        maximum = best;
+        prevsol = sol.copy();        
+        c = 0;
+    for i in range(0,n):
+        if sols[i] == best:
+            print("sol[i]",sol[i],"sol[i-1]",sol[i-1],"w:",sols[i]);
+            c += 1;
+            if i == n-1:
+                return prevsol;
+            if (sol[i] - sol[i-1]) == 1:
+                return sol;
+            sol[i] = sol[i] - 1;
+            # print("best",best,"max",maximum)
+            return optimal_sol(W, sol, c, maximum, best, prevsol);
 
 # Se inicializan variables 
+# Número de escritores.
 n = int(content[0].split()[0])
+# Número de libros.
 m = int(content[0].split()[1]);
-pagT = 0;
 
-# Valida correctitud en las entradas
-# for i in range(1, n+1):
-#     proc = content[i].split();
-#     hi = int(proc[1][0:2]);
-#     mi = int(proc[1][3:5]);
-#     hf = int(proc[2][0:2]);
-#     mf = int(proc[2][3:5]);
-#     if (hi > 24 or hf > 24) or (timeDiff(proc[2],proc[1])[1] == 0):
-#         raise Exception("Error! valores de entrada invalidos o incoherentes, revisar entrada."); 
+# Número de libros real
+nBooks = len(content) - 1;
 
 # Cuerpo del algoritmo solución.
-# Se halla la sumatoria de todas las páginas de los libros.
-for i in range(1, m+1):
-    pagT += int(content[i].split()[1]);
+if not n > m and not n < 1 and m == nBooks:
+    # Se crea vector de paginas para usarlo en la creación de la matriz de sumas
+    pages = [];
+    for i in range(1,m+1):
+        pages.append(int(content[i].split()[1]));
+    # Se crea matriz de sumas
+    sums = np.zeros((m,m));
+    c = 0;
+    for i in range(0,m):
+        c = 0;
+        for j in range(i,m):
+            c += pages[j];
+            sums[i][j] = c;
 
-# Se distribuyen las páginas por el número de escritores.
-supNPag = math.ceil(pagT/n)
-infNPag = math.floor(pagT/n);
-cPag = 0;
-auPag = [];
-totalAuPag = [];
-print("t:",totalAuPag,"au:",auPag)
+    # print("pages:",pages)
+    print("sums:")
+    print(sums);
 
-for j in range(0,n):
-    auPag.append(content[1].split());
-    cPag = int(content[1].split()[1]);
-    del content[1];
-    k = 1;
-    m -=1;
-    print("j:",j,"n:",n, "m:",m)
-    print("1content:",content);
-    if m > 2:
-        for i in range(1, m+1):
-            if i == m+1:
-                break;
-            print("i:",i,"m:",m)
-            print("i-content:",content, "m:", m);
-            book = content[i].split();
-            pag = int(book[1]);
-            lastAuPag = int(auPag[k-1][1]);
-            print("lastAuPag:",lastAuPag);
-            print("i-book:",book,"cPag:",cPag,"pag:",pag,"totalAugPag:",totalAuPag,"auPag:",auPag);
-            if j == n-1:
-                print("1cPag:",cPag,"pag:",pag,"supNPag:",supNPag)
-                if cPag >= supNPag:
-                    print("---cPag:",cPag,"supNPag:",supNPag)
-                    break;
-                elif cPag+pag <= supNPag:
-                    cPag += pag;
-                    k += 1;
-                    auPag.append(book);
-                    del content[i];
-                    m -= 1;
-                    i -= 1;
-                elif cPag+pag-lastAuPag <= supNPag:
-                    cPag += pag-lastAuPag;
-                    print("send back the book");
-                    print("contenta:",content,"auPag[k-1]:",auPag[k-1])
-                    content[m-1] = f"{content[m-1]}\n"
-                    content.append(f"{auPag[k-1][0]} {auPag[k-1][1]}");
-                    print("contentb:",content)
-                    del auPag[k-1];
-                    k -= 1;
-                    auPag.append(book);
-                    k += 1;
-                    del content[i];
-            else:
-                print("2cPag:",cPag,"pag:",pag,"supNPag:",supNPag)
-                if cPag >= infNPag:
-                    print("---cPag:",cPag,"infNPag:",infNPag)
-                    break;
-                elif cPag+pag <= infNPag:
-                    cPag += pag;
-                    k += 1;
-                    auPag.append(book);
-                    del content[i];
-                    m -= 1;
-                    i -= 1;
-                elif cPag+pag-lastAuPag <= infNPag:
-                    cPag += pag-lastAuPag;
-                    print("send back the book");
-                    print("contenta:",content,"auPag[k-1]:",auPag[k-1])
-                    content[m-1] = f"{content[m-1]}\n"
-                    content.append(f"{auPag[k-1][0]} {auPag[k-1][1]}");
-                    print("contentb:",content)
-                    del auPag[k-1];
-                    k -= 1;
-                    auPag.append(book);
-                    k += 1;
-                    del content[i];
-            print("f-cPag:",cPag,"pag:",pag,"totalAugPag:",totalAuPag,"auPag:",auPag);
-            print("f-content:",content, "m:", m);
-        #xD
-        print("------- f2-cPag:",cPag)
-        cPag = 0;
-        totalAuPag.append(auPag);
-        print("totalAuPag1:",totalAuPag)
-        print("pag:",pag,"totalAugPag:",totalAuPag,"auPag:",auPag);
-        auPag = [];
-        print("au4:",auPag)
-    else:
-        print("abscontent:",content[2].split());
-        auPag.append(content[1].split())
-        auPag.append(content[2].split())
-        totalAuPag.append(auPag);
+    # Se halla la mejor solución (optima) para los lectores.
+    first_sol = [];
+    for i in range(0,n):
+        first_sol.append(m-n+i);
 
+    first_sol = np.array(first_sol);
+    sol = optimal_sol(sums, first_sol, 0, max(translate(sums, first_sol)), 0, first_sol.copy());
+    maxTime = max(translate(sums, sol));
 
-print("totalAuPag:",totalAuPag);
+    print("sol:")
+    print(sol);
+    print("pags")
+    print(translate(sums, sol))
+else:
+    raise Exception("Error! invalid input values:",(n,m));
 
 input.close();
 
 # Se genera la salida en formato .txt
 output = open("./libros_salida.txt", "w");
-output.write(f"{supNPag} -- dias requeridos\n");
-for i in range(0,n):
-    output.write(f"{totalAuPag[i]}\n");
+output.write(f"{maxTime} -- dias requeridos\n");
+if sol[0] > 0:
+    output.write(f"lib{1} - lib{sol[0]+1}\n");
+else:
+    output.write(f"lib{sol[0]+1}\n");
+if n > 1:
+    for i in range(1,n-1):
+        print("i",i)
+        if (sol[i] - sol[i-1]) != 1:
+            output.write(f"lib{sol[i-1]+2} - lib{sol[i]+1}\n");
+        else:
+            output.write(f"lib{sol[i]+1}\n");
+    if (sol[n-1] - sol[n-2]) != 1:
+        output.write(f"lib{sol[n-2]+2} - lib{m}\n");
+    else:
+        output.write(f"lib{sol[n-1]+1}");
 output.close();
