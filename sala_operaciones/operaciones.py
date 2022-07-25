@@ -7,7 +7,11 @@ funcionamiento en el día.
 """
 
 # Se abre y lee el archivo (entrada).
-input = open("./sala_operaciones_entrada4.txt");
+from importlib.resources import contents
+import numpy as np
+
+
+input = open("./sala_operaciones_entrada3.txt");
 content = input.readlines();
 
 """
@@ -51,17 +55,26 @@ def timeSum(d1, d2):
         ht += 1;
     if (ht*60+mt) > 1440:
         raise Exception("Error!, el resultado es mayor que 24hrs");
-    return ["{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
-                                  minT=paddingElementsLeft("0",2,mt)), ht*60+mt];
+    return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
+                                  minT=paddingElementsLeft("0",2,mt));
 
 def timeDiff(d1, d2):
     """
     formato de tiempo permitido: 00:00
     """
+    if d1 == "00:00":
+        return d2;
+    if d2 == "00:00":
+        return d1;
     h1 = int(d1[0:2]);
     m1 = int(d1[3:5]);
     h2 = int(d2[0:2]);
     m2 = int(d2[3:5]);
+    if h1 == h2:
+        ht = abs(h2-h1);
+        mt = abs(m2-m1);
+        return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
+                                    minT=paddingElementsLeft("0",2,mt));
     if m1 > m2:
         h2 -= 1;    
         m2 += 60;
@@ -69,8 +82,8 @@ def timeDiff(d1, d2):
         mt = abs(m2-m1);
         if (ht*60+mt) > 1440:
             raise Exception("Error!, el resultado es mayor que 24hrs");
-        return ["{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
-                                    minT=paddingElementsLeft("0",2,mt)), ht*60+mt];
+        return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
+                                    minT=paddingElementsLeft("0",2,mt));
     if m2 > m1:
         h1 -= 1;
         m1 += 60;
@@ -78,15 +91,15 @@ def timeDiff(d1, d2):
         mt = abs(m2-m1);
         if (ht*60+mt) > 1440:
             raise Exception("Error!, el resultado es mayor que 24hrs");
-        return ["{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
-                                    minT=paddingElementsLeft("0",2,mt)), ht*60+mt];
+        return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
+                                    minT=paddingElementsLeft("0",2,mt));
     else:
         ht = abs(h2-h1);
         mt = abs(m2-m1);
         if (ht*60+mt) > 1440:
             raise Exception("Error!, el resultado es mayor que 24hrs");
-        return ["{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
-                                    minT=paddingElementsLeft("0",2,mt)), ht*60+mt];
+        return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
+                                    minT=paddingElementsLeft("0",2,mt));
 
 def isGtTime(d1, d2):
     """
@@ -104,6 +117,9 @@ def isGtTime(d1, d2):
         else:
             return False;
     return False;
+
+def isGtOrEqualTime(t1, t2):
+    return isGtTime(t1,t2) or t1 == t2;
     
 def timeInMin(t):
     """
@@ -113,68 +129,74 @@ def timeInMin(t):
     m = int(t[3:5]);
     return h*60 + m;
 
+def radix_sort_time(A, n):
+    # A[2].split()[1]
+    sorted = [];
+    for i in range(0,2):
+        for j in range(1,n):
+            A[j].split()[i+1]
+    return sorted;
+
+def adjacency(A, n):
+    ad = np.zeros((n,n));
+    for i in range(0,n):
+        for j in range(i+1,n):
+            # print("A", A[i].split()[2], A[j].split()[1]);
+            if isGtOrEqualTime(A[j].split()[1], A[i].split()[2]):
+                # print("sum:", timeSum( timeDiff(A[i].split()[1],A[i].split()[2]), 
+                # timeDiff(A[j].split()[1],A[j].split()[2])), "t1:", timeDiff(A[i].split()[1],A[i].split()[2]) ,"t2", timeDiff(A[j].split()[1],A[j].split()[2]) )
+                ad[i][j] = m[j];
+    return ad;
+
+def max_path(A, n, pi, j, b):
+    print("pi",pi,"j",j,"A",A[pi][j])
+    if pi == n-1 or j == n-1:
+        return b;
+    elif A[pi][j] == 0:
+        print("r", pi, j+1,"A",A[pi][j+1])
+        return max_path(A, pi, j+1, n, b);
+    else:
+        print("m[pi]",m[pi],"b",b)
+        return max(max_path(A, pi, j+1, n, b),max_path(A, pi, pi+1, n, b + m[j]));
+
 # print(paddingElementsLeft("0",7,"232"));
 # print(timeSum("10:45", "12:35")); # 23:20
-# print(timeDiff("10:45", "23:20")); #12:35
+# print(timeSum("22:40", "00:40")); # 23:20
+# print(timeDiff("04:40","17:30")); #12:35
 # print(timeDiff("10:00", "23:00")); #13:00
+# print(timeDiff("00:00", "22:40")); #22:40
 # print(isGtTime("10:48", "10:47"));
+# print(isGtOrEqualTime("17:30", "17:30"));
 
 # Se inicializan variables 
 n = int(content[0].split()[0])
-c = 0;
-res = [];
-
-# Valida correctitud en las entradas
-# for i in range(1, n+1):
-#     proc = content[i].split();
-#     hi = int(proc[1][0:2]);
-#     mi = int(proc[1][3:5]);
-#     hf = int(proc[2][0:2]);
-#     mf = int(proc[2][3:5]);
-#     if (hi > 24 or hf > 24) or (timeDiff(proc[2],proc[1])[1] == 0):
-#         raise Exception("Error! valores de entrada invalidos o incoherentes, revisar entrada."); 
 
 # Cuerpo del algoritmo solución.
-# se selecciona cuál hora de inicio se acerca más a las 0:00
-minProc = content[1].split();
+# Se ordenan los procedimientos siguiendo idea del radix-sort
+# sorted_content = radix_sort_time(content, n);
+# print("sorted:",sorted_content);
 
-for i in range(2, n+1):
-    proc = content[i].split();
-    if isGtTime(minProc[1], proc[1]):
-        minProc = proc;
+# obtenemos la matriz del tiempo requerido para cada procedimiento (en minutos)
+m = [];
+for i in range(1,n+1):
+    m.append(timeInMin( timeDiff(content[i].split()[1], content[i].split()[2]) ));
+print("m:", m);
 
-# Se hace la secuencia de procedimientos
-c += 1;
-res.append(minProc);
-totalT = timeDiff(res[c-1][2],res[c-1][1])[0];
+# Obtenemos la matriz de vecindad de los procedimientos
+content = content[1:len(content)]
+M = adjacency(content,n);
+print(M);
 
-for i in range(1, n+1):
-    # print("i:",i)
-    proc = content[i].split();
-    totalMin = timeInMin(totalT);
-    if (totalMin) >= 1440:
-        break;
-    if proc[0] == res[c-1][0]:
-        continue;
-    print("newVal:", totalMin+timeDiff(proc[2],proc[1])[1], "totalTime:",totalMin,"timeDiff:", timeDiff(proc[2],proc[1])[1],"proc:",proc,"res:",res[c-1], "limit:", (totalMin+timeDiff(proc[2],proc[1])[1] <= 1440))
-    if (isGtTime(proc[1],res[c-1][2]) or (res[c-1][2] == proc[1])) and (totalMin+timeDiff(proc[2],proc[1])[1] <= 1440):
-        print("totalTimera:",totalT);
-        print("result:",timeSum(totalT,timeDiff(proc[1],res[c-1][2])[0]), "timeDiff:", timeDiff(proc[1],res[c-1][2])[0], "proc:", proc[1], "res:", res[c-1][2]);
-        totalT = timeSum(totalT,timeDiff(proc[2],proc[1])[0])[0];
-        print("totalTimerb:",totalT);
-        print("newTotalT:",totalT)
-        c += 1;
-        res.append(proc);
-        totalMin = timeInMin(totalT);
-        # print("2-totalMin:",totalMin, "another:",timeDiff(res[c-1][2],proc[1])[1]);
+res = max_path(M, n, 0, 1, m[0]);
+print(res)
 
 input.close();
 
 # Se genera la salida en formato .txt
-output = open("./sala_operaciones_salida.txt", "w");
-output.write(f"{c} -- procedimientos\n");
-output.write("{time} -- tiempo de uso\n".format(
-    time=totalT));
-for i in range(0,c):
-    output.write(f"{res[i][0]}\n");
-output.close();
+# output = open("./sala_operaciones_salida.txt", "w");
+# output.write(f"{c} -- procedimientos\n");
+# output.write("{time} -- tiempo de uso\n".format(
+#     time=totalT));
+# for i in range(0,c):
+#     output.write(f"{res[i][0]}\n");
+# output.close();
