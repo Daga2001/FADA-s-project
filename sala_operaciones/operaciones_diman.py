@@ -9,9 +9,9 @@ funcionamiento en el día.
 # Se abre y lee el archivo (entrada).
 from importlib.resources import contents
 import numpy as np
+import math
 
-
-input = open("./sala_operaciones_entrada3.txt");
+input = open("./sala_operaciones_entrada6.txt");
 content = input.readlines();
 
 """
@@ -40,66 +40,42 @@ def paddingElementsLeft(e, n, val):
     res += val;
     return res;
 
-def timeSum(d1, d2):
-    """
-    formato de tiempo permitido: 00:00
-    """
-    h1 = int(d1[0:2]);
-    m1 = int(d1[3:5]);
-    h2 = int(d2[0:2]);
-    m2 = int(d2[3:5]);
-    ht = abs(h2+h1);
-    mt = abs(m2+m1);
-    if mt >= 60:
-        mt -= 60;
-        ht += 1;
-    if (ht*60+mt) > 1440:
+def minToHrs(m):
+    if m > 1440:
         raise Exception("Error!, el resultado es mayor que 24hrs");
-    return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
-                                  minT=paddingElementsLeft("0",2,mt));
+    hrs = math.trunc(m/60);
+    min = (m - (hrs * 60));
+    return "{hours}:{minutes}".format(hours = paddingElementsLeft("0",2,hrs), 
+                                      minutes = paddingElementsLeft("0",2,min));
 
-def timeDiff(d1, d2):
+def hrsToMin(t):
     """
     formato de tiempo permitido: 00:00
     """
-    if d1 == "00:00":
-        return d2;
-    if d2 == "00:00":
-        return d1;
-    h1 = int(d1[0:2]);
-    m1 = int(d1[3:5]);
-    h2 = int(d2[0:2]);
-    m2 = int(d2[3:5]);
-    if h1 == h2:
-        ht = abs(h2-h1);
-        mt = abs(m2-m1);
-        return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
-                                    minT=paddingElementsLeft("0",2,mt));
-    if m1 > m2:
-        h2 -= 1;    
-        m2 += 60;
-        ht = abs(h2-h1);
-        mt = abs(m2-m1);
-        if (ht*60+mt) > 1440:
-            raise Exception("Error!, el resultado es mayor que 24hrs");
-        return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
-                                    minT=paddingElementsLeft("0",2,mt));
-    if m2 > m1:
-        h1 -= 1;
-        m1 += 60;
-        ht = abs(h2-h1);
-        mt = abs(m2-m1);
-        if (ht*60+mt) > 1440:
-            raise Exception("Error!, el resultado es mayor que 24hrs");
-        return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
-                                    minT=paddingElementsLeft("0",2,mt));
-    else:
-        ht = abs(h2-h1);
-        mt = abs(m2-m1);
-        if (ht*60+mt) > 1440:
-            raise Exception("Error!, el resultado es mayor que 24hrs");
-        return "{hrsT}:{minT}".format(hrsT=paddingElementsLeft("0",2,ht), 
-                                    minT=paddingElementsLeft("0",2,mt));
+    h = int(t[0:2]);
+    m = int(t[3:5]);
+    res = h*60 + m;
+    if res > 1440:
+        raise Exception("Error!, el resultado es mayor que 24hrs");
+    return res;
+
+def timeSum(t1, t2):
+    """
+    formato de tiempo permitido: hh:mm
+    """
+    t1 = hrsToMin(t1);
+    t2 = hrsToMin(t2);
+    res = abs(t1 + t2);
+    return minToHrs(res);
+
+def timeDiff(t1, t2):
+    """
+    formato de tiempo permitido: hh:mm
+    """
+    t1 = hrsToMin(t1);
+    t2 = hrsToMin(t2);
+    res = abs(t1 - t2);
+    return minToHrs(res);
 
 def isGtTime(d1, d2):
     """
@@ -121,14 +97,6 @@ def isGtTime(d1, d2):
 def isGtOrEqualTime(t1, t2):
     return isGtTime(t1,t2) or t1 == t2;
     
-def timeInMin(t):
-    """
-    formato de tiempo permitido: 00:00
-    """
-    h = int(t[0:2]);
-    m = int(t[3:5]);
-    return h*60 + m;
-
 def radix_sort_time(A, n):
     # A[2].split()[1]
     sorted = [];
@@ -148,17 +116,54 @@ def adjacency(A, n):
                 ad[i][j] = m[j];
     return ad;
 
-def max_path(A, n, pi, j, b):
-    print("pi",pi,"j",j,"A",A[pi][j])
-    if pi == n-1 or j == n-1:
-        return b;
-    elif A[pi][j] == 0:
-        print("r", pi, j+1,"A",A[pi][j+1])
-        return max_path(A, pi, j+1, n, b);
-    else:
-        print("m[pi]",m[pi],"b",b)
-        return max(max_path(A, pi, j+1, n, b),max_path(A, pi, pi+1, n, b + m[j]));
+def weightSol(sol):
+    w = 0;
+    for i in range(0, len(sol)):
+        w += m[sol[i]];
+    return w;
 
+def increasesByOne(sol):
+    for i in range(1, len(sol)):
+        if sol[i] - sol[i-1] != 1:
+            return False;
+    return True;
+
+def doHasNeighbors(A, n, p):
+    if p >= n-1:
+        return False;
+    for i in range(p+1, n):
+        if A[p][i] != 0:
+            return True;
+    return False;
+
+def max_path(A, n, pi, sol, w):
+    l = len(sol)
+    if l == n:
+        return sol;
+    maxW = m[pi];
+    for i in range(l-1, -1, -1):
+        p = sol[i-1];
+        pf = sol[i];
+        for j in range(n-1, p, -1):
+            print("sol[i-1]",p,"j",j,"maxW",maxW);
+            if pf == n-1 or A[p][j] == 0:
+                print("pass")
+                continue;
+            # if not doHasNeighbors(A, n, j):
+            #     print("passed")
+
+            #     continue;
+            newSol = sol[0:pf];
+            newW = weightSol(newSol);
+            print("newW",newW,"newSol",newSol);
+            if w < w-m[p]+m[j]:
+                w = w-m[p]+m[j];
+            
+
+    return sol;
+
+# for i in range(0, 1460, 10):
+#     print("i:",i,"minToHrs(i):",minToHrs(i));
 # print(paddingElementsLeft("0",7,"232"));
 # print(timeSum("10:45", "12:35")); # 23:20
 # print(timeSum("22:40", "00:40")); # 23:20
@@ -179,16 +184,38 @@ n = int(content[0].split()[0])
 # obtenemos la matriz del tiempo requerido para cada procedimiento (en minutos)
 m = [];
 for i in range(1,n+1):
-    m.append(timeInMin( timeDiff(content[i].split()[1], content[i].split()[2]) ));
+    m.append(hrsToMin( timeDiff(content[i].split()[1], content[i].split()[2]) ));
 print("m:", m);
+
+# obtenemos una matriz para indicar los tiempos máximos alcanzables para cada procedimiento.
+p = [0]*n;
+ac = m[n-1];
+for i in range(n-2, -1, -1):
+    ac += m[i];
+    if ac < 1440:
+        p[i] = ac;
+    else:
+        p[i] = hrsToMin(timeDiff(content[i+1].split()[1], "24:00"));
+print("p:",p);
 
 # Obtenemos la matriz de vecindad de los procedimientos
 content = content[1:len(content)]
 M = adjacency(content,n);
 print(M);
 
-res = max_path(M, n, 0, 1, m[0]);
+# Obtenemos la primera solución voraz
+px = 0;
+s0 = [px];
+for i in range(1, n):
+    if M[px][i] == 0:
+        continue;
+    s0.append(i);
+    px = i;
+print("s0:", s0, "w0:", weightSol(s0));
+
+res = max_path(M, n, 0, s0, weightSol(s0));
 print(res)
+# print("neighbors",doHasNeighbors(M, n, 7));
 
 input.close();
 
