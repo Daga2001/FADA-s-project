@@ -9,7 +9,7 @@ funcionamiento en el día.
 # Se abre y lee el archivo (entrada).
 import math
 
-input = open("./sala_operaciones_entrada3.txt");
+input = open("./sala_operaciones_entrada2.txt");
 content = input.readlines();
 
 """
