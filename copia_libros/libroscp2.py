@@ -17,7 +17,7 @@ import numpy as np;
 import math;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada1.txt");
+input = open("./libros_entrada7.txt");
 content = input.readlines();
 
 """
@@ -69,6 +69,8 @@ def optimal_sol(W, sol, c, maximum, best, prevsol):
         if sols[i] == best:
             print("sol[i]",sol[i],"sol[i-1]",sol[i-1],"w:",sols[i]);
             c += 1;
+            if i == 0 and sol[i] == 0:
+                return sol;
             if i == n-1:
                 return prevsol;
             if (sol[i] - sol[i-1]) == 1:

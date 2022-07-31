@@ -15,9 +15,10 @@ otro escritor desde l4 y l6 y así sucesivamente.
 # se importa libreria math
 import numpy as np;
 import math;
+import copy;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada1.txt");
+input = open("./libros_entrada4.txt");
 content = input.readlines();
 
 """
@@ -28,6 +29,64 @@ content[2].split()[1]
 """
 
 # funciones auxiliares
+# O(n^3)
+def floyd_warshall(ad, n):
+
+    # calcula el minimo entre 2 valores, incluyendo infinito ("i") - O(1)
+
+    def minimum(a, b):
+        if a == "i" and b == "i":
+            return "i";
+        elif a == "i":
+            return b;
+        elif b == "i":
+            return a;
+        else:
+            return min(a,b);
+
+    # Suma 2 valores, incluyendo al infinito como posible valor - O(1)
+    
+    def sum(a, b):
+        if a == "i" and b == "i":
+            return "i";
+        elif a == "i":
+            return a;
+        elif b == "i":
+            return b;
+        else:
+            return a + b;
+
+    # Iteración sobre la matriz de pesos y trayectorias - O(n^2)
+
+    def dij(d, k):
+        if k == 0:
+            return ad;
+        elif k >= 0:
+            for i in range(0, n):
+                for j in range(0, n):
+                    if i == k-1 or j == k-1:
+                        continue;
+                    if i == j:
+                        continue;
+                    a = d[i][j];
+                    b = sum(d[i][k-1],d[k-1][j]);
+                    mini = minimum(a,b);
+                    if mini != "i":
+                        if mini <= 1440:
+                            d[i][j] = mini;
+        else:
+            raise Exception("Error!, k debe ser mayor o igual a 0");
+        return d;
+        
+    D = dij(ad, 0);
+
+    # Iteración para hallar la matriz de pesos máximos y trayectoria - O(n^3)
+
+    for k in range(1,n):
+        dij(D, k)
+
+    return D;
+
 def translate(W, sol):
     """
     devuelve el arreglo de pesos asociados a los indices del arreglo solución
@@ -79,6 +138,32 @@ def optimal_sol(W, sol, c, maximum, best, prevsol):
             # print("best",best,"max",maximum)
             return optimal_sol(W, sol, c, maximum, best, prevsol);
 
+def opt_sol_dyn(A, n, i, best, bSol, sol):
+    # print("i",i,"n-1",n-1,"sol", sol)
+    if len(sol) != n or len(bSol) != n:
+        raise Exception("Error!, la longitud del beneficio no coincide con el número de escritores");
+    if i == n-1:
+        # print("bsol",bSol,"best",best)
+        return (bSol, best);
+    if i == 0:
+        if sol[i] == 0:
+            return opt_sol_dyn(A, n, i+1, best, bSol, sol);
+        else:
+            sol[i] = sol[i] - 1;
+            val = max(translate(A, sol));
+            if best > val:
+                return opt_sol_dyn(A, n, i, val, copy.deepcopy(sol), sol);
+            return opt_sol_dyn(A, n, i, best, bSol, sol);
+    else:
+        if sol[i]-1 == sol[i-1]:
+            return opt_sol_dyn(A, n, i+1, best, bSol, sol);
+        else:
+            sol[i] = sol[i] - 1;
+            val = max(translate(A, sol));
+            if best > val:
+                return opt_sol_dyn(A, n, i, val, copy.deepcopy(sol), sol);
+            return opt_sol_dyn(A, n, i, best, bSol, sol);
+
 # Se inicializan variables 
 # Número de escritores.
 n = int(content[0].split()[0])
@@ -94,7 +179,7 @@ if not n > m and not n < 1 and m == nBooks:
     pages = [];
     for i in range(1,m+1):
         pages.append(int(content[i].split()[1]));
-    # Se crea matriz de sumas
+    # Se crea matriz de pesos (cantidad de paginas acumuladas)
     sums = np.zeros((m,m));
     c = 0;
     for i in range(0,m):
@@ -102,24 +187,17 @@ if not n > m and not n < 1 and m == nBooks:
         for j in range(i,m):
             c += pages[j];
             sums[i][j] = c;
-
-    # print("pages:",pages)
-    print("sums:")
+    print("sums");
     print(sums);
 
     # Se halla la mejor solución (optima) para los lectores.
-    first_sol = [];
-    for i in range(0,n):
-        first_sol.append(m-n+i);
+    bM = [];
+    for i in range(n,m):
+        bM.append(i);
 
-    first_sol = np.array(first_sol);
-    sol = optimal_sol(sums, first_sol, 0, max(translate(sums, first_sol)), 0, first_sol.copy());
-    maxTime = max(translate(sums, sol));
+    a = copy.deepcopy(bM);
+    (sol, maxTime) = opt_sol_dyn(sums, n, 0, max(translate(sums, bM)), bM, a);
 
-    print("sol:")
-    print(sol);
-    print("pags")
-    print(translate(sums, sol))
 else:
     raise Exception("Error! invalid input values:",(n,m));
 
@@ -134,7 +212,6 @@ else:
     output.write(f"lib{sol[0]+1}\n");
 if n > 1:
     for i in range(1,n-1):
-        print("i",i)
         if (sol[i] - sol[i-1]) != 1:
             output.write(f"lib{sol[i-1]+2} - lib{sol[i]+1}\n");
         else:
