@@ -14,10 +14,10 @@ otro escritor desde l4 y l6 y así sucesivamente.
 
 # se importa libreria math
 import numpy as np;
-import math;
+import time;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada1.txt");
+input = open("./libros_entrada7.txt");
 content = input.readlines();
 
 """
@@ -59,7 +59,7 @@ def optimal_sol(W, sol, c, maximum, best, prevsol):
     sols = translate(W, sol);
     best = max(sols);
     print("c",c,"n",n,"best",best,"max",maximum,"sol",sol,"sols",sols,"prevsol",prevsol)
-    if c==n:
+    if c==3:
         return sol;
     if best < maximum:
         maximum = best;
@@ -87,6 +87,8 @@ m = int(content[0].split()[1]);
 
 # Número de libros real
 nBooks = len(content) - 1;
+
+start = time.time();
 
 # Cuerpo del algoritmo solución.
 if not n > m and not n < 1 and m == nBooks:
@@ -122,6 +124,10 @@ if not n > m and not n < 1 and m == nBooks:
     print(translate(sums, sol))
 else:
     raise Exception("Error! invalid input values:",(n,m));
+
+end = time.time();
+
+print(" --- execution time: {t} --- ".format(t = end-start));
 
 input.close();
 

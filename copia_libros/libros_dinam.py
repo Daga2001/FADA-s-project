@@ -14,11 +14,11 @@ otro escritor desde l4 y l6 y así sucesivamente.
 
 # se importa libreria math
 import numpy as np;
-import math;
+import time
 import copy;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada4.txt");
+input = open("./libros_entrada7.txt");
 content = input.readlines();
 
 """
@@ -173,6 +173,8 @@ m = int(content[0].split()[1]);
 # Número de libros real
 nBooks = len(content) - 1;
 
+start = time.time();
+
 # Cuerpo del algoritmo solución.
 if not n > m and not n < 1 and m == nBooks:
     # Se crea vector de paginas para usarlo en la creación de la matriz de sumas
@@ -200,6 +202,10 @@ if not n > m and not n < 1 and m == nBooks:
 
 else:
     raise Exception("Error! invalid input values:",(n,m));
+
+end = time.time();
+
+print(" --- execution time: {t} --- ".format(t = end-start));
 
 input.close();
 
