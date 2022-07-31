@@ -1,7 +1,4 @@
-5 -- procedimientos
-23:50 -- tiempo de uso
-Proc1
-Proc3
-Proc6
-Proc8
+2 -- procedimientos
+1410 -- tiempo de uso
+Proc4
 Proc9

@@ -7,10 +7,11 @@ funcionamiento en el día.
 """
 
 # Se abre y lee el archivo (entrada).
-from importlib.resources import contents
-import numpy as np
-import math
-import copy
+from importlib.resources import contents;
+import numpy as np;
+import math;
+import time;
+import copy;
 
 input = open("./sala_operaciones_entrada5.txt");
 content = input.readlines();
@@ -265,7 +266,7 @@ def floyd_warshall(ad, tr, n):
                     a = d[i][j];
                     b = sum(d[i][k-1],d[k-1][j]);
                     maxi = maximum(a,b);
-                    print("i",i,"k-1",k-1,"j",j,"a",a,"b",b,"b1",d[i][k-1],"b2",d[k-1][j],"min",maxi)
+                    # print("i",i,"k-1",k-1,"j",j,"a",a,"b",b,"b1",d[i][k-1],"b2",d[k-1][j],"min",maxi)
                     if maxi != "i":
                         if maxi <= 1440:
                             d[i][j] = maxi;
@@ -546,22 +547,24 @@ def test(A):
 # Se inicializan variables 
 n = int(content[0].split()[0])
 
+start = time.time();
+
 # Cuerpo del algoritmo solución.
 
 # Se ordenan los procedimientos de mayor a menor según su tiempo de inicio.
 proc = sort_time(content, n);
-print("proc",proc)
+# print("proc",proc)
 
 # obtenemos la matriz del tiempo requerido para cada procedimiento (en minutos)
 m = [];
 for i in range(0,n):
     m.append(hrsToMin( timeDiff(proc[i][1], proc[i][2]) ));
-print("m:", m);
+# print("m:", m);
 
 # Obtenemos la matriz de pesos de los procedimientos
 (M,T) = adjacency(proc,n,m);
-print("M:");
-printM(M);
+# print("M:");
+# printM(M);
 # print("T:");
 # print(T);
 
@@ -610,7 +613,7 @@ for i in range(1,n):
         if sol[1] < sols[i][1]:
             sol = sols[i]
 
-print("sol",sol)
+# print("sol",sol)
 
 c = len(sol[0]);
 totalT = sol[1];
@@ -619,6 +622,10 @@ sol = sol[0];
 # posibilities = test(M);
 # print("posibilities:",len(posibilities))
 # print(posibilities);
+
+end = time.time();
+
+print("--- execution time: {t} ---".format(t=end-start));
 
 input.close();
 

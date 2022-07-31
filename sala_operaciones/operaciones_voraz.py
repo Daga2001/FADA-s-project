@@ -7,7 +7,8 @@ funcionamiento en el día.
 """
 
 # Se abre y lee el archivo (entrada).
-import math
+import math;
+import time;
 
 input = open("./sala_operaciones_entrada2.txt");
 content = input.readlines();
@@ -227,10 +228,12 @@ def sort_time(A, n):
 # Se inicializan variables 
 n = int(content[0].split()[0])
 
+start = time.time();
+
 # Cuerpo del algoritmo solución.
 # Se ordenan los procedimientos siguiendo idea del radix-sort
 sorted_content = sort_time(content, n);
-print("sorted:",sorted_content);
+# print("sorted:",sorted_content);
 
 # obtenemos la matriz del tiempo requerido para cada procedimiento (en minutos)
 maxP = 0;
@@ -242,7 +245,7 @@ for i in range(0,n):
         maxP = i;
         maxW = wp;
     m.append(wp);
-print("m:", m,"maxP",maxP,"maxW",maxW);
+# print("m:", m,"maxP",maxP,"maxW",maxW);
 
 # Se comparan los tiempos finales del procedimiento actual con el tiempo inicial 
 # del siguiente para determinar la solución voraz.
@@ -287,7 +290,7 @@ for i in range(maxP+1,n):
         if p2ft <= cit and cw > pw:
             w2 += - pw + cw;
             sol2[k2] = i;
-print("sol1",sol1,"w1",w1,"sol2",sol2,"w2",w2)
+# print("sol1",sol1,"w1",w1,"sol2",sol2,"w2",w2)
 
 sol = [];
 timeMax = 0;
@@ -300,9 +303,12 @@ else:
     sol = sol1;
     timeMax = w1;
     c = k1+1;
-print("sol",sol,"c",c,"timeMax",timeMax)
+# print("sol",sol,"c",c,"timeMax",timeMax)
 
-print()
+end = time.time();
+
+print("--- execution time: {t} ---".format(t=end-start));
+
 input.close();
 
 # Se genera la salida en formato .txt
