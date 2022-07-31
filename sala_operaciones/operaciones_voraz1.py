@@ -11,7 +11,7 @@ from importlib.resources import contents
 import numpy as np
 import math
 
-input = open("./sala_operaciones_entrada6.txt");
+input = open("./sala_operaciones_entrada2.txt");
 content = input.readlines();
 
 """
@@ -218,6 +218,12 @@ print(res)
 # print("neighbors",doHasNeighbors(M, n, 7));
 
 input.close();
+
+print("original")
+print(np.array(content))
+
+print("adjacency")
+print(np.array(adjacency(content, n)))
 
 # Se genera la salida en formato .txt
 # output = open("./sala_operaciones_salida.txt", "w");

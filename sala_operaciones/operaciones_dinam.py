@@ -7,13 +7,12 @@ funcionamiento en el día.
 """
 
 # Se abre y lee el archivo (entrada).
-from importlib.resources import contents;
 import numpy as np;
 import math;
 import time;
 import copy;
 
-input = open("./sala_operaciones_entrada5.txt");
+input = open("./sala_operaciones_entrada6.txt");
 content = input.readlines();
 
 """
@@ -196,14 +195,27 @@ def timeDiff(t1, t2):
     res = abs(t1 - t2);
     return minToHrs(res);
 
+# for i in range(0, 1460, 10):
+#     print("i:",i,"minToHrs(i):",minToHrs(i));
+# print(paddingElementsLeft("0",7,"232"));
+# print(timeSum("10:45", "12:35")); # 23:20
+# print(timeSum("22:40", "00:40")); # 23:20
+# print(timeDiff("04:40","17:30")); # 12:35
+# print(timeDiff("10:00", "23:00")); # 13:00
+# print(timeDiff("00:00", "22:40")); # 22:40
+# print(isGtTime("10:48", "10:47"));
+# print(isGtOrEqualTime("17:30", "17:30"));
+
 def adjacency(A, n, m):
     ad = [];
     pi = [];
+    c = 0;
     for i in range(0,n):
         piX = [];
         adX = [];
         for j in range(0,n):
             if i == j:
+                c += 1;
                 adX.append(0);
                 piX.append(None);
                 continue;
@@ -214,10 +226,14 @@ def adjacency(A, n, m):
                 piX.append(i);
             else:
                 # "i"
+                c += 1;
                 adX.append("i");
                 piX.append(None);
         ad.append(adX);
         pi.append(piX);
+    # si es una matriz de 0s y is
+    if c == n*n:
+        return (None,None);
     return (ad,pi);
 
 def printM(matrix):
@@ -314,8 +330,6 @@ def allPosibilitiesFor(A, n, m, k, p, ai, pos, posA, posAp, wn, wnA):
         for i in range(p+1,n):
             if A[p][i] != "i" and A[p][i] != 0:
                 # print("posAp[ai]:",posAp[ai],"posA",posA,"wn",wn);
-                wn[0] = wn[0] + A[p][i]
-                posA.append(i);
                 # print("i",i,"k",k,"ai",ai,"pos",pos,"posA",posA)
                 newAp = copy.deepcopy(posAp[ai])
                 newAp.append(i)
@@ -323,16 +337,16 @@ def allPosibilitiesFor(A, n, m, k, p, ai, pos, posA, posAp, wn, wnA):
                 newWnA = copy.deepcopy(wnA[ai] + A[p][i]);
                 wnA[ai+1] = copy.deepcopy(newWnA);
                 allPosibilitiesFor(A, n, m, i, p, ai+1, pos, posA, posAp, wn, wnA);
-                pos.append([posA,wn[0]])
-                # print("1- pos",pos,"posA",posA)
                 posA = copy.deepcopy(posAp[ai]);
                 wn[0] = copy.deepcopy(wnA[ai]);
+                wn[0] = wn[0] + A[p][i]
+                posA.append(i);
+                pos.append([posA,wn[0]])
+                # print("1- pos",pos,"posA",posA,"ai",ai)
     else: 
         for i in range(k,n):
             if A[k][i] != "i" and A[k][i] != 0:
                 # print("posAp[ai]:",posAp[ai],"posA",posA);
-                wn[0] = wn[0] + A[k][i]
-                posA.append(i);
                 # print("i",i,"k",k,"ai",ai,"pos",pos,"posA",posA)
                 newAp = copy.deepcopy(posAp[ai])
                 newAp.append(i)
@@ -340,13 +354,12 @@ def allPosibilitiesFor(A, n, m, k, p, ai, pos, posA, posAp, wn, wnA):
                 newWnA = copy.deepcopy(wnA[ai] + A[k][i]);
                 wnA[ai+1] = copy.deepcopy(newWnA);
                 allPosibilitiesFor(A, n, m, i, p, ai+1, pos, posA, posAp, wn, wnA); 
-                if ai < n-2:
-                    pos.append([posA,wn[0]])
-                    # print("2- pos",pos,"posA",posA)
-                    posA = copy.deepcopy(posAp[ai]);
-                    wn[0] = copy.deepcopy(wnA[ai]);
-                # else:
-                #     break;
+                posA = copy.deepcopy(posAp[ai]);
+                wn[0] = copy.deepcopy(wnA[ai]);
+                wn[0] = wn[0] + A[p][i]
+                posA.append(i);
+                pos.append([posA,wn[0]])
+                # print("2- pos",pos,"posA",posA,"ai",ai)
 
 # O(n!) - No estoy seguro si esta es la cota.
 def max_path(p):
@@ -361,6 +374,8 @@ def max_path(p):
         wnA.append(0);
     wn = [m[p]];
     allPosibilitiesFor(M, n, m, k, p, ai, pos, posA, posAp, wn, wnA);
+
+    print("p",p,"n",n,"posibilities",len(pos))
 
     # Hallamos el máximo valor posible.
     L = len(pos)
@@ -514,7 +529,7 @@ def test(A):
                                     # posA = copy.deepcopy(posAp[3])
                                     # posA = [];
                                     # print("posApF",posAp)
-                            print("1. posA",posA)
+                            # print("1. posA",posA)
                             pos.append([posA,wn])
                             posA = copy.deepcopy(posAp[2])
                             wn = copy.deepcopy(wnA[2]);
@@ -531,19 +546,6 @@ def test(A):
     # posAp[0] = copy.deepcopy(posA)
     return pos;
 
-
-
-# for i in range(0, 1460, 10):
-#     print("i:",i,"minToHrs(i):",minToHrs(i));
-# print(paddingElementsLeft("0",7,"232"));
-# print(timeSum("10:45", "12:35")); # 23:20
-# print(timeSum("22:40", "00:40")); # 23:20
-# print(timeDiff("04:40","17:30")); # 12:35
-# print(timeDiff("10:00", "23:00")); # 13:00
-# print(timeDiff("00:00", "22:40")); # 22:40
-# print(isGtTime("10:48", "10:47"));
-# print(isGtOrEqualTime("17:30", "17:30"));
-
 # Se inicializan variables 
 n = int(content[0].split()[0])
 
@@ -553,75 +555,84 @@ start = time.time();
 
 # Se ordenan los procedimientos de mayor a menor según su tiempo de inicio.
 proc = sort_time(content, n);
-# print("proc",proc)
 
 # obtenemos la matriz del tiempo requerido para cada procedimiento (en minutos)
+maxP = 0;
+maxW = 0;
 m = [];
 for i in range(0,n):
-    m.append(hrsToMin( timeDiff(proc[i][1], proc[i][2]) ));
-# print("m:", m);
+    wp = hrsToMin( timeDiff(proc[i][1], proc[i][2]) );
+    if maxW < wp:
+        maxP = i;
+        maxW = wp;
+    m.append(wp);
+print("m",m);
 
 # Obtenemos la matriz de pesos de los procedimientos
 (M,T) = adjacency(proc,n,m);
-# print("M:");
-# printM(M);
+print("M:");
+printM(M);
 # print("T:");
 # print(T);
 
-# Obtenemos la matriz n-esima de pesos y de trayectorias con el algoritmo de warshall.
-# (wN,piN) = floyd_warshall(M, T, n);
-# print("wN:")
-# printM(wN)
-# print("piN:")
-# printM(piN)
+if M != None:
+    # p = 1;
+    # k = p;
+    # pos = [];
+    # posA = [p];
+    # posAp = [];
+    # wnA = [];
+    # ai = 0;
+    # for i in range(0,n):
+    #     posAp.append(0);
+    #     wnA.append(0);
+    # wn = [m[p]];
 
-# p = 0;
-# k = p;
-# pos = [];
-# posA = [p];
-# posAp = [];
-# wnA = [];
-# ai = 0;
-# for i in range(0,n):
-#     posAp.append(0);
-#     wnA.append(0);
-# wn = [m[p]];
+    # print("p:",p,"weigth:", m[p])
 
-# print("p:",p,"weigth:", m[p])
+    # """
+    # posibilities: 14
+    # [[[0, 1, 2, 3, 4], 1440], [[0, 1, 2, 4], 1380], [[0, 1, 2], 1320], 
+    # [[0, 1, 3, 4], 840], [[0, 1, 3], 780], [[0, 1, 4], 780], [[0, 1], 720], 
+    # [[0, 2, 3, 4], 1020], [[0, 2, 3], 960], [[0, 2, 4], 960], [[0, 2], 900], 
+    # [[0, 3, 4], 420], [[0, 3], 360], [[0, 4], 360]]
+    # """
 
-# """
-# posibilities: 14
-# [[[0, 1, 2, 3, 4], 1440], [[0, 1, 2, 4], 1380], [[0, 1, 2], 1320], 
-# [[0, 1, 3, 4], 840], [[0, 1, 3], 780], [[0, 1, 4], 780], [[0, 1], 720], 
-# [[0, 2, 3, 4], 1020], [[0, 2, 3], 960], [[0, 2, 4], 960], [[0, 2], 900], 
-# [[0, 3, 4], 420], [[0, 3], 360], [[0, 4], 360]]
-# """
+    # allPosibilitiesFor(M, n, m, k, p, ai, pos, posA, posAp, wn, wnA);
+    # L = len(pos);
+    # print("posibilities:",len(pos))
+    # print(pos);
 
-# allPosibilitiesFor(M, n, m, k, p, ai, pos, posA, posAp, wn, wnA);
-# L = len(pos);
-# print("posibilities:",len(pos))
-# print(pos);
+    # posibilities = test(M);
+    # print("posibilities:",len(posibilities))
+    # print(posibilities);
 
-# Hallamos la solución cuyo beneficio es el optimo para el problema.
-sols = [];
-for i in range(0,n):
-    sols.append(max_path(i));
+    # Hallamos la solución cuyo beneficio es el optimo para el problema.
+    sols = [];
+    for i in range(0,n):
+        sols.append(max_path(i));
 
-sol = sols[0];
-for i in range(1,n):
-    if len(sols[i]) > 0:
-        if sol[1] < sols[i][1]:
-            sol = sols[i]
+    sol = sols[0];
+    for i in range(1,n):
+        if len(sols[i]) > 0:
+            if sol[1] < sols[i][1]:
+                sol = sols[i]
 
-# print("sol",sol)
+    # print("sol",sol)
 
-c = len(sol[0]);
-totalT = sol[1];
-sol = sol[0];
+    c = len(sol[0]);
+    totalT = sol[1];
+    sol = sol[0];
 
-# posibilities = test(M);
-# print("posibilities:",len(posibilities))
-# print(posibilities);
+    if maxW > totalT:
+        c = 1;
+        totalT = maxW;
+        sol = [maxP];
+
+else:
+    c = 1;
+    totalT = maxW
+    sol = [maxP];
 
 end = time.time();
 
@@ -630,10 +641,10 @@ print("--- execution time: {t} ---".format(t=end-start));
 input.close();
 
 # Se genera la salida en formato .txt
-output = open("./sala_operaciones_salida.txt", "w");
-output.write(f"{c} -- procedimientos\n");
-output.write("{time} -- tiempo de uso\n".format(
-    time=minToHrs(totalT)));
-for i in range(0,c):
-    output.write(f"{proc[sol[i]][0]}\n");
-output.close();
+# output = open("./sala_operaciones_salida.txt", "w");
+# output.write(f"{c} -- procedimientos\n");
+# output.write("{time} -- tiempo de uso\n".format(
+#     time=minToHrs(totalT)));
+# for i in range(0,c):
+#     output.write(f"{proc[sol[i]][0]}\n");
+# output.close();

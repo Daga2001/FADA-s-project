@@ -7,10 +7,11 @@ funcionamiento en el día.
 """
 
 # Se abre y lee el archivo (entrada).
+import numpy as np;
 import math;
 import time;
 
-input = open("./sala_operaciones_entrada2.txt");
+input = open("./sala_operaciones_entrada6.txt");
 content = input.readlines();
 
 """
@@ -222,9 +223,6 @@ def sort_time(A, n):
 
     return sorted;
 
-# arr = [1,4,6,30];
-# print("rsort",radix_sort(arr, 30))
-
 # Se inicializan variables 
 n = int(content[0].split()[0])
 
@@ -233,7 +231,6 @@ start = time.time();
 # Cuerpo del algoritmo solución.
 # Se ordenan los procedimientos siguiendo idea del radix-sort
 sorted_content = sort_time(content, n);
-# print("sorted:",sorted_content);
 
 # obtenemos la matriz del tiempo requerido para cada procedimiento (en minutos)
 maxP = 0;
@@ -253,7 +250,6 @@ for i in range(0,n):
 # obtengo una solución partiendo desde donde esta el inicio, con su valor.
 sol1 = [0];
 w1 = m[0];
-c1 = 0;
 k1 = 0;
 for i in range(1,n):
     cw = m[i];
