@@ -19,7 +19,7 @@ import copy;
 import math;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada1.txt");
+input = open("./libros_entrada10.txt");
 content = input.readlines();
 
 """
@@ -49,8 +49,51 @@ def translate(W, sol):
         sols.append(W[sol[i]-c][sol[i]]);
     return sols;
 
+def optimal_sol(W, sol, c, maximum, best, prevsol):
+    """
+    O(?)
+    entradas:
+    W -> matriz de sumas.
+    sol -> solución inicial o actual del problema
+    c -> contador, que me permite controlar hasta cuando va a parar el algoritmo voraz.
+    maximum -> valor de solución optima.
+    best -> valor de la solución: prevsol,
+    prevsol -> solución previa.
+
+    devuelve el rango de libros que se asignará a cada escritor en la 
+    solución optima.
+    ej: [3, 4, 6]
+    significa:
+    autor 1 -> lib 1 - lib 3
+    autor 2 -> lib 4 - lib 5
+    autor 3 -> lib 6
+    """
+    sols = translate(W, sol);
+    best = max(sols);
+    # print("c",c,"n",n,"best",best,"max",maximum,"sol",sol,"sols",sols,"prevsol",prevsol)
+    if c==n:
+        return sol;
+    if best < maximum:
+        maximum = best;
+        prevsol = copy.deepcopy(sol);
+        c = 0;
+    for i in range(0,n):
+        if sols[i] == best:
+            # print("sol[i]",sol[i],"sol[i-1]",sol[i-1],"w:",sols[i]);
+            c += 1;
+            if i == 0 and sol[i] == 0:
+                return sol;
+            if i == n-1:
+                return prevsol;
+            if (sol[i] - sol[i-1]) == 1:
+                return sol;
+            sol[i] = sol[i] - 1;
+            # print("best",best,"max",maximum)
+            return optimal_sol(W, sol, c, maximum, best, prevsol);
+
 def voraz_sol(W, p, n, m):
     """
+    O(?)
     entradas:
     W -> matriz de sumas.
     p -> matriz con número de paginas de cada libro.
@@ -78,40 +121,25 @@ def voraz_sol(W, p, n, m):
 
     print("prom",prom,"sd",sd)
 
-    # Se distribuyen indices equitativamente - O(n)
     sol = [];
-    c = m-1;
-    print("c",c)
-    for i in range(1, n+1):
-        maxI = math.ceil(c/n);
-        sol.append(c);
-        c -= maxI;
-    fSol = sol;
-    sol = [];
-    for i in range(0, n):
-        sol.append(fSol[n-i-1]);
-
     if sd == 0:
+        # Se distribuyen indices equitativamente - O(n)
+        c = m-1;
+        # print("c",c)
+        for i in range(1, n+1):
+            maxI = math.ceil(c/n);
+            sol.append(c);
+            c -= maxI;
+        fSol = sol;
+        sol = [];
+        for i in range(0, n):
+            sol.append(fSol[n-i-1]);
         return sol
-
     else:
-        pval = 0;
-        nval = 0;
-        psol = translate(W, sol);
-        bSol = copy.deepcopy(sol);
-        # print("sol",sol,"psol",psol,"p[sol[i]]",p[sol[0]],"p",p);
-        # modificación de datos - O(n)
-        for i in range(0, n-1):
-            pval = copy.deepcopy(psol);
-            pval[i] = pval[i] - p[sol[i]] + p[sol[i]-1]
-            nval = copy.deepcopy(psol);
-            nval[i] = nval[i] - p[sol[i]] + p[sol[i]+1]
-            print("nval",nval,"pval",pval)
-            if max(pval) < max(nval):
-                bSol = pval;
-            if max(pval) > max(nval):
-                bSol = nval;
-        return bSol
+        first_sol = [];
+        for i in range(0,n):
+            first_sol.append(m-n+i);
+        return optimal_sol(W, first_sol, 0, max(translate(sums, first_sol)), 0, copy.deepcopy(first_sol));
             
 
 # Se inicializan variables 
