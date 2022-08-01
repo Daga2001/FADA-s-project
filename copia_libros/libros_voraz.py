@@ -19,7 +19,7 @@ import copy;
 import math;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada2.txt");
+input = open("./libros_entrada8.txt");
 content = input.readlines();
 
 """
@@ -160,21 +160,21 @@ print(" --- execution time: {t} --- ".format(t = end-start));
 input.close();
 
 # Se genera la salida en formato .txt
-# output = open("./libros_salida.txt", "w");
-# output.write(f"{maxTime} -- dias requeridos\n");
-# if sol[0] > 0:
-#     output.write(f"lib{1} - lib{sol[0]+1}\n");
-# else:
-#     output.write(f"lib{sol[0]+1}\n");
-# if n > 1:
-#     for i in range(1,n-1):
-#         # print("i",i)
-#         if (sol[i] - sol[i-1]) != 1:
-#             output.write(f"lib{sol[i-1]+2} - lib{sol[i]+1}\n");
-#         else:
-#             output.write(f"lib{sol[i]+1}\n");
-#     if (sol[n-1] - sol[n-2]) != 1:
-#         output.write(f"lib{sol[n-2]+2} - lib{m}\n");
-#     else:
-#         output.write(f"lib{sol[n-1]+1}");
-# output.close();
+output = open("./libros_salida.txt", "w");
+output.write(f"{maxTime} -- dias requeridos\n");
+if sol[0] > 0:
+    output.write(f"lib{1} - lib{sol[0]+1}\n");
+else:
+    output.write(f"lib{sol[0]+1}\n");
+if n > 1:
+    for i in range(1,n-1):
+        # print("i",i)
+        if (sol[i] - sol[i-1]) != 1:
+            output.write(f"lib{sol[i-1]+2} - lib{sol[i]+1}\n");
+        else:
+            output.write(f"lib{sol[i]+1}\n");
+    if (sol[n-1] - sol[n-2]) != 1:
+        output.write(f"lib{sol[n-2]+2} - lib{m}\n");
+    else:
+        output.write(f"lib{sol[n-1]+1}");
+output.close();
