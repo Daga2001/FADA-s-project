@@ -13,6 +13,7 @@ otro escritor desde l4 y l6 y así sucesivamente.
 """
 
 # se importa libreria math
+from os import system
 import numpy as np;
 import copy
 import time;
@@ -65,7 +66,7 @@ def optimal_sol(W, sol, c, maximum, best, prevsol):
         return sol;
     if best < maximum:
         maximum = best;
-        prevsol = sol.copy();        
+        prevsol = copy.deepcopy(sol);
         c = 0;
     for i in range(0,n):
         if sols[i] == best:
@@ -134,6 +135,73 @@ def voraz_sol(W, p, n, m):
                         bSol = sol;
     return bSol
 
+def posibilities(W, sol, pos, k, u, n, m):
+    """
+    entradas:
+    W -> matriz de sumas.
+    sol -> vector con indices de la solución inicial.
+    se asume que por defecto es un vector de la forma:
+    [i_m-n,i_m-n+1,i_n-m+2,...,i_m-1];
+    bSol -> indices para la mejor solución.
+    pos -> vector donde se almacenan todas las
+    posibles distribuciones de libros para cada autor.
+    k -> iterador sobre la posición del escritor.
+    u -> iterador sobre la posición del libro.
+    n -> número de escritores.
+    m -> número de libros.
+
+    devuelve el rango de libros que se asignará a cada escritor en la 
+    solución optima.
+    ej: [3, 4, 6]
+    significa:
+    autor 1 -> lib 1 - lib 3
+    autor 2 -> lib 4 - lib 5
+    autor 3 -> lib 6
+    """
+    # restricciones
+    if k < 0 or k >= n-1:
+        # Do nothing - stop;
+        pos.append(sol);
+        k;
+    elif u < k or u >= m-n+k:
+        # Do nothing - stop;
+        pos.append(sol);
+        u
+    else:
+        ksol = copy.deepcopy(sol);
+        sol[k] = u;
+        # tomo el libro para el n-esimo autor y consulto el siguiente libro.
+        posibilities(W, sol, pos, k, u+1, n, m)
+        # rechazo el libro para el n-esimo autor y cambio al siguiente autor.
+        posibilities(W, ksol, pos, k+1, k+1, n, m)
+
+def dynamic_sol(W, n, m):
+    """
+    W -> matriz de sumas.
+    n -> número de escritores.
+    m -> número de libros.
+    """
+    first_sol = [];
+    for i in range(0,n):
+        first_sol.append(m-n+i);
+    pos = [];
+    k = 0;
+    u = 0;
+    posibilities(W, copy.deepcopy(first_sol), pos, k, u, n, m);
+    L = len(pos);
+    # print("posibilities:", L)
+    # print(pos);
+    sol = pos[0];
+    best = max(translate(W, pos[0]));
+    for i in range(1,L):
+        val = max(translate(W, pos[i]));
+        # print("sol",sol,"isol",pos[i],"best",best,"val",val);
+        if val < best:
+            sol = pos[i];
+            best = val;
+    print("fsol",sol,"best",best);
+    return sol;
+
 # Se inicializan variables 
 # Número de escritores.
 n = int(content[0].split()[0])
@@ -169,15 +237,36 @@ if not n > m and not n < 1 and m == nBooks:
     for i in range(0,n):
         first_sol.append(m-n+i);
 
-    first_sol = np.array(first_sol);
+    # print("first_sol",first_sol);
+    # pos = [];
+    # k = 0;
+    # u = 0;
+    # posibilities(sums, copy.deepcopy(first_sol), pos, k, u, n, m);
+    # L = len(pos);
+    # print("posibilities:", L)
+    # print(pos);
+    # sol = pos[0];
+    # best = max(translate(sums, pos[0]));
+    # for i in range(1,L):
+    #     val = max(translate(sums, pos[i]));
+    #     print("sol",sol,"isol",pos[i],"best",best,"val",val);
+    #     if val < best:
+    #         sol = pos[i];
+    #         best = val;
+    # print("fsol",sol,"best",best);
+
+    # falsa solución voraz
     # sol = voraz_sol(sums, pages, n, m);
-    sol = optimal_sol(sums, first_sol, 0, max(translate(sums, first_sol)), 0, first_sol.copy());
+    # verdadera solución voraz
+    sol = optimal_sol(sums, first_sol, 0, max(translate(sums, first_sol)), 0, copy.deepcopy(first_sol));
+    # solución dinamica
+    # sol = dynamic_sol(sums, n, m);
     maxTime = max(translate(sums, sol));
 
     print("sol:")
     print(sol);
     print("pags")
-    print(translate(sums, sol))
+    print(maxTime);
 else:
     raise Exception("Error! invalid input values:",(n,m));
 

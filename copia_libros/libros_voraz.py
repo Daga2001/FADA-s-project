@@ -19,7 +19,7 @@ import copy;
 import math;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada8.txt");
+input = open("./libros_entrada1.txt");
 content = input.readlines();
 
 """
@@ -49,10 +49,11 @@ def translate(W, sol):
         sols.append(W[sol[i]-c][sol[i]]);
     return sols;
 
-def voraz_sol(W, n, m):
+def voraz_sol(W, p, n, m):
     """
     entradas:
-    W -> matriz con número de paginas de cada libro.
+    W -> matriz de sumas.
+    p -> matriz con número de paginas de cada libro.
     n -> número de escritores.
     m -> número de libros.
     
@@ -64,44 +65,53 @@ def voraz_sol(W, n, m):
     autor 2 -> lib 4 - lib 5
     autor 3 -> lib 6
     """
-    
+    # se obtiene desviación estandar - O(m)
     prom = 0;
     for i in range(0, m):
-        prom += W[i];
+        prom += p[i];
     prom = prom/m
 
     sd = 0;
     for i in range(0, m):
-        sd += ((W[i]-prom)**2);
+        sd += ((p[i]-prom)**2);
     sd = (sd/m)**(1/2);
 
     print("prom",prom,"sd",sd)
 
+    # Se distribuyen indices equitativamente - O(n)
     sol = [];
-    if sd == 0:
-        c = m-1;
-        print("c",c)
-        for i in range(1, n+1):
-            maxI = math.ceil(c/n);
-            sol.append(c);
-            c -= maxI;
-        fSol = sol;
-        sol = [];
-        for i in range(0, n):
-            sol.append(fSol[n-i-1]);
-    else:
-        acum = 0;
-        for i in range(0, m):
-            print("acum",acum,"i",i,"sol",sol)
-            acum += W[i];
-            if acum > maxP:
-                acum = 0;
-                sol.append(i);
-            if len(sol) == n-1:
-                break;
-        sol.append(m-1);
+    c = m-1;
+    print("c",c)
+    for i in range(1, n+1):
+        maxI = math.ceil(c/n);
+        sol.append(c);
+        c -= maxI;
+    fSol = sol;
+    sol = [];
+    for i in range(0, n):
+        sol.append(fSol[n-i-1]);
 
-    return sol
+    if sd == 0:
+        return sol
+
+    else:
+        pval = 0;
+        nval = 0;
+        psol = translate(W, sol);
+        bSol = copy.deepcopy(sol);
+        # print("sol",sol,"psol",psol,"p[sol[i]]",p[sol[0]],"p",p);
+        # modificación de datos - O(n)
+        for i in range(0, n-1):
+            pval = copy.deepcopy(psol);
+            pval[i] = pval[i] - p[sol[i]] + p[sol[i]-1]
+            nval = copy.deepcopy(psol);
+            nval[i] = nval[i] - p[sol[i]] + p[sol[i]+1]
+            print("nval",nval,"pval",pval)
+            if max(pval) < max(nval):
+                bSol = pval;
+            if max(pval) > max(nval):
+                bSol = nval;
+        return bSol
             
 
 # Se inicializan variables 
@@ -144,7 +154,7 @@ if not n > m and not n < 1 and m == nBooks:
     print(sums);
 
     # Se halla la solución optima para los lectores.
-    sol = voraz_sol(pages, n, m);
+    sol = voraz_sol(sums, pages, n, m);
     maxTime = max(translate(sums, sol));
 
     print("solFinal:",sol,"t",translate(sums,sol))
