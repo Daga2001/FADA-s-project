@@ -19,7 +19,7 @@ import copy;
 import math;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada10.txt");
+input = open("./libros_entrada8.txt");
 content = input.readlines();
 
 """

@@ -15,11 +15,12 @@ otro escritor desde l4 y l6 y así sucesivamente.
 # se importa libreria math
 from os import system
 import numpy as np;
+import math;
 import copy
 import time;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada10.txt");
+input = open("./libros_entrada8.txt");
 content = input.readlines();
 
 """
@@ -49,18 +50,15 @@ def translate(W, sol):
         sols.append(W[sol[i]-c][sol[i]]);
     return sols;
 
-def posibilities(W, sol, pos, k, u, n, m):
+def posibilities(W, sol, pos, n, m):
     """
     entradas:
     W -> matriz de sumas.
     sol -> vector con indices de la solución inicial.
     se asume que por defecto es un vector de la forma:
     [i_m-n,i_m-n+1,i_n-m+2,...,i_m-1];
-    bSol -> indices para la mejor solución.
-    pos -> vector donde se almacenan todas las
-    posibles distribuciones de libros para cada autor.
-    k -> iterador sobre la posición del escritor.
-    u -> iterador sobre la posición del libro.
+    pos -> array con las posibles distribuciones de los autores
+    que nos sirven como subproblemas para solucionar el problema global.
     n -> número de escritores.
     m -> número de libros.
 
@@ -72,22 +70,75 @@ def posibilities(W, sol, pos, k, u, n, m):
     autor 2 -> lib 4 - lib 5
     autor 3 -> lib 6
     """
-    # restricciones
-    if k < 0 or k >= n-1:
-        # Do nothing - stop;
-        pos.append(sol);
-        k;
-    elif u < k or u >= m-n+k:
-        # Do nothing - stop;
-        pos.append(sol);
-        u
-    else:
-        ksol = copy.deepcopy(sol);
-        sol[k] = u;
-        # tomo el libro para el n-esimo autor y consulto el siguiente libro.
-        posibilities(W, sol, pos, k, u+1, n, m)
-        # rechazo el libro para el n-esimo autor y cambio al siguiente autor.
-        posibilities(W, ksol, pos, k+1, k+1, n, m)
+    def isGrowing(vec, a, b):
+        # print("grows",vec)
+        for i in range(a,b):
+            # print("grows","i",vec[i],vec);
+            if vec[i] != vec[i+1]-1:
+                return False;
+        return True;
+    
+    sol[0] -= n;
+    iSol = copy.deepcopy(sol);
+
+    # O((m-n!))
+    for t in range(0, math.factorial(m-n+2)):
+        # print("t",t)
+        for u in range(sol[n],sol[n+1]):
+            # print("4.1.sol",sol)
+            sol[n] = u;
+            pos.append([copy.deepcopy(sol), max(translate(W, sol))]);
+
+        # print("4.sol",sol)
+        sol[n-1] = sol[n-1]+1;
+        # print("5.sol",sol)
+        sol[n] = sol[n-1]+1;
+
+        if sol[n-1]+1 == sol[n] and sol[n+1]-1 == sol[n]:
+            for k in range(n-1,-1,-1):
+                # print("k",k);
+
+                # se puede continuar?
+                if k == 0:
+                    # print("n",n,"m",m,"m-(n+2)",m-(n+2),"sol[0]",sol[0])
+                    if sol[k] >= iSol[0] + n:
+                        # do nothing - stop!
+                        pos.append([copy.deepcopy(sol), max(translate(W, sol))]);
+                        return pos;
+                    # hay una secuencia creciente después del primer elemento?
+                    if isGrowing(sol,k+1,n):
+                        # los ultimos dos digitos son distantes en 1?
+                        if sol[n+1]-1 == sol[n]:
+                            pos.append([copy.deepcopy(sol), max(translate(W, sol))]);
+                            # print("theSol",sol)
+                            for c in range(k, n+1):
+                                if c == k:
+                                    sol[c] = sol[c] + 1;
+                                else:
+                                    sol[c] = sol[c-1] + 1;
+                            # print("2- theSol",sol)
+                            if sol[k] >= iSol[0] + n:
+                                # do nothing - stop!
+                                pos.append([copy.deepcopy(sol), max(translate(W, sol))]);
+                                return pos;
+                            break;
+                        else:
+                            pos.append([copy.deepcopy(sol), max(translate(W, sol))]);
+                            break;
+                    else:
+                        pos.append([copy.deepcopy(sol), max(translate(W, sol))]);
+                        break;
+
+                if isGrowing(sol,k+1,n) and sol[n+1]-1 == sol[n]:
+                    if k-1 == 0:
+                        continue;
+                    pos.append([copy.deepcopy(sol), max(translate(W, sol))]);
+                    sol[k-1] = sol[k-1]+1;
+                    # print("2.sol",sol)
+                    sol[k] = sol[k-1]+1;
+                    # print("3.sol",sol)
+                    sol[k+1] = sol[k]+1;
+                    # print("7.sol",sol)
 
 def dynamic_sol(W, n, m):
     """
@@ -95,26 +146,62 @@ def dynamic_sol(W, n, m):
     n -> número de escritores.
     m -> número de libros.
     """
+    totalW = W[0][m-1];
+    partialW = 0;
+    writers = n;
     first_sol = [];
-    for i in range(0,n):
-        first_sol.append(m-n+i);
+    # toma la solución inicial - O(n)
+    for i in range(0,n-1):
+        if i == 0:
+            for j in range(0,m):
+                partialW += pages[j];
+                totalW -= pages[j];
+                prom = totalW/(writers-1);
+                # print("partial",partialW,"totalW",totalW,"prom",prom,"writers",writers)
+                # print("firts_sol",first_sol);
+                if partialW > prom:
+                    partialW = 0;
+                    writers -= 1;
+                    if j == m-1:
+                        j -= 1;
+                    first_sol.append(j);
+                    break;
+        else:
+            for j in range(first_sol[i-1]+1,m):
+                partialW += pages[j];
+                totalW -= pages[j];
+                prom = totalW/(writers-1);
+                # print("partial",partialW,"totalW",totalW,"prom",prom,"writers",writers)
+                # print("firts_sol",first_sol);
+                if partialW > prom:
+                    partialW = 0;
+                    writers -= 1;
+                    if j == m-1:
+                        j -= 1;
+                    first_sol.append(j);
+                    break;
+    first_sol.append(m-1);
+    
     pos = [];
-    k = 0;
-    u = 0;
-    posibilities(W, copy.deepcopy(first_sol), pos, k, u, n, m);
+    print("1- firts_sol",first_sol);
+
+    posibilities(W, copy.deepcopy(first_sol), pos, n-2, m);
+    
     L = len(pos);
-    # print("posibilities:", L)
-    # print(pos);
-    sol = pos[0];
-    best = max(translate(W, pos[0]));
+    # print(pos)
+    # print("posibilities",L)
+
+    bestSol = pos[0][0];
+    bestW = pos[0][1];
     for i in range(1,L):
-        val = max(translate(W, pos[i]));
-        # print("sol",sol,"isol",pos[i],"best",best,"val",val);
-        if val < best:
-            sol = pos[i];
-            best = val;
-    # print("fsol",sol,"best",best);
-    return sol;
+        iSol = pos[i][0];
+        w = pos[i][1];
+        if w < bestW:
+            bestSol = iSol;
+            bestW = w;
+    
+
+    return bestSol;
 
 # Se inicializan variables 
 # Número de escritores.
@@ -145,30 +232,6 @@ if not n > m and not n < 1 and m == nBooks:
     # print("pages:",pages)
     print("sums:")
     print(sums);
-
-    """
-    # first_sol = [];
-    # for i in range(0,n):
-    #     first_sol.append(m-n+i);
-
-    # print("first_sol",first_sol);
-    # pos = [];
-    # k = 0;
-    # u = 0;
-    # posibilities(sums, copy.deepcopy(first_sol), pos, k, u, n, m);
-    # L = len(pos);
-    # print("posibilities:", L)
-    # print(pos);
-    # sol = pos[0];
-    # best = max(translate(sums, pos[0]));
-    # for i in range(1,L):
-    #     val = max(translate(sums, pos[i]));
-    #     print("sol",sol,"isol",pos[i],"best",best,"val",val);
-    #     if val < best:
-    #         sol = pos[i];
-    #         best = val;
-    # print("fsol",sol,"best",best);
-    """
 
     # Se halla la mejor solución (optima) para los lectores.
     sol = dynamic_sol(sums, n, m);
