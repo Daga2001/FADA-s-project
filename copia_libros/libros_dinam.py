@@ -78,8 +78,11 @@ def posibilities(W, sol, pos, n, m):
                 return False;
         return True;
     
-    sol[0] -= n;
     iSol = copy.deepcopy(sol);
+    sol[0] -= n;
+
+    if sol[0] < 0:
+        sol[0] = 0;
 
     # O((m-n!))
     for t in range(0, math.factorial(m-n+2)):
