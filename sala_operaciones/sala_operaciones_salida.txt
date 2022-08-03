@@ -1,6 +1,5 @@
-20 -- procedimientos
-720 -- tiempo de uso
-Proc1
+19 -- procedimientos
+12:00 -- tiempo de uso
 Proc4
 Proc3
 Proc6

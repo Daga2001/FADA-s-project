@@ -11,7 +11,7 @@ import numpy as np;
 import math;
 import time;
 
-input = open("./sala_operaciones_entrada6.txt");
+input = open("./sala_operaciones_entrada10.txt");
 content = input.readlines();
 
 """
@@ -242,7 +242,6 @@ for i in range(0,n):
         maxP = i;
         maxW = wp;
     m.append(wp);
-# print("m:", m,"maxP",maxP,"maxW",maxW);
 
 # Se comparan los tiempos finales del procedimiento actual con el tiempo inicial 
 # del siguiente para determinar la solución voraz.
@@ -286,7 +285,6 @@ for i in range(maxP+1,n):
         if p2ft <= cit and cw > pw:
             w2 += - pw + cw;
             sol2[k2] = i;
-# print("sol1",sol1,"w1",w1,"sol2",sol2,"w2",w2)
 
 sol = [];
 timeMax = 0;
@@ -299,7 +297,6 @@ else:
     sol = sol1;
     timeMax = w1;
     c = k1+1;
-# print("sol",sol,"c",c,"timeMax",timeMax)
 
 end = time.time();
 
@@ -311,7 +308,7 @@ input.close();
 output = open("./sala_operaciones_salida.txt", "w");
 output.write(f"{c} -- procedimientos\n");
 output.write("{time} -- tiempo de uso\n".format(
-    time=timeMax));
+    time=minToHrs(timeMax)));
 for i in range(0,c):
     output.write(f"{sorted_content[sol[i]][0]}\n");
 output.close();

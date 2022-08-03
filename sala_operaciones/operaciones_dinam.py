@@ -12,7 +12,7 @@ import math;
 import time;
 import copy;
 
-input = open("./sala_operaciones_entrada6.txt");
+input = open("./sala_operaciones_entrada10.txt");
 content = input.readlines();
 
 """
@@ -195,17 +195,6 @@ def timeDiff(t1, t2):
     res = abs(t1 - t2);
     return minToHrs(res);
 
-# for i in range(0, 1460, 10):
-#     print("i:",i,"minToHrs(i):",minToHrs(i));
-# print(paddingElementsLeft("0",7,"232"));
-# print(timeSum("10:45", "12:35")); # 23:20
-# print(timeSum("22:40", "00:40")); # 23:20
-# print(timeDiff("04:40","17:30")); # 12:35
-# print(timeDiff("10:00", "23:00")); # 13:00
-# print(timeDiff("00:00", "22:40")); # 22:40
-# print(isGtTime("10:48", "10:47"));
-# print(isGtOrEqualTime("17:30", "17:30"));
-
 def adjacency(A, n, m):
     ad = [];
     pi = [];
@@ -282,7 +271,6 @@ def floyd_warshall(ad, tr, n):
                     a = d[i][j];
                     b = sum(d[i][k-1],d[k-1][j]);
                     maxi = maximum(a,b);
-                    # print("i",i,"k-1",k-1,"j",j,"a",a,"b",b,"b1",d[i][k-1],"b2",d[k-1][j],"min",maxi)
                     if maxi != "i":
                         if maxi <= 1440:
                             d[i][j] = maxi;
@@ -292,17 +280,11 @@ def floyd_warshall(ad, tr, n):
         return d;
         
     (D,T) = dij(ad, tr, 0);
-    # print("W",0,":")
-    # printM(D);
 
     # Iteración para hallar la matriz de pesos máximos y trayectoria - O(n^3)
 
     for k in range(1,n):
         dij(D, T, k)
-        print("W",k,":")
-        printM(D);
-        print("T",k,":")
-        printM(T);
 
     return (D,T);
 
@@ -329,8 +311,6 @@ def allPosibilitiesFor(A, n, m, k, p, ai, pos, posA, posAp, wn, wnA):
         wnA[ai] = copy.deepcopy(wn[0]);
         for i in range(p+1,n):
             if A[p][i] != "i" and A[p][i] != 0:
-                # print("posAp[ai]:",posAp[ai],"posA",posA,"wn",wn);
-                # print("i",i,"k",k,"ai",ai,"pos",pos,"posA",posA)
                 newAp = copy.deepcopy(posAp[ai])
                 newAp.append(i)
                 posAp[ai+1] = newAp;
@@ -342,12 +322,9 @@ def allPosibilitiesFor(A, n, m, k, p, ai, pos, posA, posAp, wn, wnA):
                 wn[0] = wn[0] + A[p][i]
                 posA.append(i);
                 pos.append([posA,wn[0]])
-                # print("1- pos",pos,"posA",posA,"ai",ai)
     else: 
         for i in range(k,n):
             if A[k][i] != "i" and A[k][i] != 0:
-                # print("posAp[ai]:",posAp[ai],"posA",posA);
-                # print("i",i,"k",k,"ai",ai,"pos",pos,"posA",posA)
                 newAp = copy.deepcopy(posAp[ai])
                 newAp.append(i)
                 posAp[ai+1] = newAp;
@@ -359,9 +336,8 @@ def allPosibilitiesFor(A, n, m, k, p, ai, pos, posA, posAp, wn, wnA):
                 wn[0] = wn[0] + A[p][i]
                 posA.append(i);
                 pos.append([posA,wn[0]])
-                # print("2- pos",pos,"posA",posA,"ai",ai)
 
-# O(n!) - No estoy seguro si esta es la cota.
+# O(n!)
 def max_path(p):
     k = p;
     pos = [];
@@ -374,7 +350,7 @@ def max_path(p):
         wnA.append(0);
     wn = [m[p]];
     allPosibilitiesFor(M, n, m, k, p, ai, pos, posA, posAp, wn, wnA);
-
+    
     print("p",p,"n",n,"posibilities",len(pos))
 
     # Hallamos el máximo valor posible.
@@ -387,165 +363,6 @@ def max_path(p):
                 sol = pos[i];
     return sol;
 
-# def allPosibilitiesFor(A, n, m, k, p, pos, posA, posAp, wn):
-#     """
-#     entradas:
-#     A -> matriz de pesos
-#     pos -> matriz de posibilidades totales
-#     posA -> matriz de posibilidades acumuladoras
-#     posAp -> matriz de posibilidades acumuladoras anterior.
-#     n -> número de procedimientos
-#     m -> vector de pesos de cada procedimiento
-#     k -> iterador
-#     p -> número del procedimiento
-#     wn -> peso acumulado de la solución
-#     wi -> indice de peso acumulado
-#     salida:
-#     devuelve todos los posibles caminos para un vertice.
-#     """
-#     if k == p:
-#         for i in range(0,n):
-#             if A[k][i] != "i" and A[k][i] != 0:
-#                 wn[0] = wn[0] + A[k][i];
-#                 posA.append(i);
-#                 allPosibilitiesFor(A, n, m, i, p, pos, posA, posAp, wn);
-#                 # print("i",i,"k",k,"p",p,"A[k][i]",A[k][i],"wn",wn)
-#                 # print("posA",posA,"pos",pos)
-#                 # print("2-","i",i,"k",k,"p",p,"A[k][i]",A[k][i],"wn",wn)
-#                 pos.append([posA,wn[0]]); 
-#                 posA = [p];
-#                 wn = [m[p]];
-#     else: 
-#         for i in range(k,n):
-#             posA = posAp;
-#             if A[k][i] != "i" and A[k][i] != 0:
-#                 wn[0] = wn[0] + A[k][i];
-#                 posA.append(i);
-#                 allPosibilitiesFor(A, n, m, i, p, pos, posA, posAp, wn); 
-#                 # print("i",i,"k",k,"p",p,"A[k][i]",A[k][i],"wn",wn)
-#                 # print("posA",posA,"pos",pos)
-#                 # print("2-","i",i,"k",k,"p",p,"A[k][i]",A[k][i],"wn",wn)                
-
-def test(A):
-    """
-    [0, 'i', 660, 720, 120]
-    ['i', 0, 'i', 720, 120]
-    ['i', 'i', 0, 'i', 120]
-    ['i', 'i', 'i', 0, 'i']
-    ['i', 'i', 'i', 'i', 0]
-    posibilidades: 6
-    [0,2,4], [0,3], [0,4], [1,3], [1,4], [2,4]
-    """
-    # entradas:
-    l = 5;
-    p = 0;
-    pi = p;
-    pos = [];
-    posA = [p];
-    posAp = [];
-    wnA = [];
-    for i in range(0,n):
-        posAp.append(0);
-        wnA.append(0);
-    wn = m[p];
-    # cuerpo:
-    posAp[0] = copy.deepcopy(posA);
-    wnA[0] = copy.deepcopy(wn);
-    for a in range(p+1,l):
-        # p = 0;
-        if a == 1:
-            # posAp = copy.deepcopy(posA);
-            a
-        if A[p][a] != 0 and A[p][a] != "i":
-            # print("3- posAp", posAp[0])
-            wn = wn + A[p][a]
-            posA.append(a);
-            newAp = copy.deepcopy(posAp[0])
-            newAp.append(a)
-            posAp[1] = newAp;
-            newWnA = copy.deepcopy(wnA[0] + A[p][a]);
-            wnA[1] = copy.deepcopy(newWnA);
-            for b in range(a+1,l):
-                # p = 1;
-                if b == 2:
-                    b
-                    # print("posA",posA,"posAp",posAp)
-                    # # posAp = copy.deepcopy(posA);
-                    # print("posAp", posAp)
-                if A[a][b] != 0 and A[a][b] != "i":
-                    # print("1- posAp", posAp[1])
-                    # posA = posAp[1]
-                    wn = wn + A[a][b]
-                    posA.append(b);
-                    newAp = copy.deepcopy(posAp[1])
-                    newAp.append(b)
-                    posAp[2] = newAp;
-                    newWnA = copy.deepcopy(wnA[1] + A[a][b]);
-                    wnA[2] = copy.deepcopy(newWnA);
-                    for c in range(b+1,l):
-                        # p = 2;
-                        if c == 3:
-                            c
-                            # posAp = copy.deepcopy(posA);
-                        if A[b][c] != 0 and A[b][c] != "i":
-                            # print("2- posAp", posAp[2])
-                            # posA = posAp[2]
-                            wn = wn + A[b][c]
-                            posA.append(c);
-                            newAp = copy.deepcopy(posAp[2])
-                            newAp.append(c)
-                            posAp[3] = newAp;
-                            newWnA = copy.deepcopy(wnA[2] + A[b][c]);
-                            wnA[3] = copy.deepcopy(newWnA);
-                            for d in range(c+1,l):
-                                # p = 3;
-                                if d == 4:
-                                    d
-                                    # posAp = copy.deepcopy(posA);
-                                if A[c][d] != 0 and A[c][d] != "i":
-                                    # print("3- posAp", posAp[3])
-                                    posA = posAp[3]
-                                    wn = wn + A[c][d]
-                                    posA.append(d);
-                                    newAp = copy.deepcopy(posAp[3])
-                                    newAp.append(d)
-                                    posAp[4] = newAp;
-                                    newWnA = copy.deepcopy(wnA[3] + A[c][d]);
-                                    wnA[4] = copy.deepcopy(newWnA);
-                                    for e in range(d+1,l):
-                                        # p = 4;
-                                        if e == 5:
-                                            e
-                                            # posAp = copy.deepcopy(posA);
-                                        if A[d][e] != 0 and A[d][e] != "i":
-                                            # print("3- posAp", posAp[4])
-                                            # posA = posAp[4]
-                                            wn = wn + A[d][e]
-                                            posA.append(e);
-                                    # pos.append([posA,wn])
-                                    # posA = [];
-                                    # print("4. posA",posA)
-                                    # pos.append([posA,wn])
-                                    # posA = copy.deepcopy(posAp[3])
-                                    # posA = [];
-                                    # print("posApF",posAp)
-                            # print("1. posA",posA)
-                            pos.append([posA,wn])
-                            posA = copy.deepcopy(posAp[2])
-                            wn = copy.deepcopy(wnA[2]);
-                            # posA = [];
-                    pos.append([posA,wn])
-                    posA = copy.deepcopy(posAp[1])
-                    wn = copy.deepcopy(wnA[1]);
-                        # print("2- posAp:",posAp)
-                        
-                        # posA = [];
-            pos.append([posA,wn])
-            posA = copy.deepcopy(posAp[0]);
-            wn = copy.deepcopy(wnA[0]);
-    # posAp[0] = copy.deepcopy(posA)
-    return pos;
-
 # Se inicializan variables 
 n = int(content[0].split()[0])
 
@@ -556,7 +373,7 @@ start = time.time();
 # Se ordenan los procedimientos de mayor a menor según su tiempo de inicio.
 proc = sort_time(content, n);
 
-# obtenemos la matriz del tiempo requerido para cada procedimiento (en minutos)
+# obtenemos el vector del tiempo requerido para cada procedimiento (en minutos)
 maxP = 0;
 maxW = 0;
 m = [];
@@ -566,62 +383,36 @@ for i in range(0,n):
         maxP = i;
         maxW = wp;
     m.append(wp);
-print("m",m);
+
+# se halla un vector que representa el máximo valor alcanzable desde un procedimiento.
+mPos = [];
+mW = 0;
+for i in range(0,n):
+    mW += m[i];
+    if mW < 1440:
+        mPos.append(mW);
+    else:
+        mPos.append(abs(hrsToMin(proc[i][1])-1440));
 
 # Obtenemos la matriz de pesos de los procedimientos
 (M,T) = adjacency(proc,n,m);
-print("M:");
-printM(M);
-# print("T:");
-# print(T);
 
 if M != None:
-    # p = 1;
-    # k = p;
-    # pos = [];
-    # posA = [p];
-    # posAp = [];
-    # wnA = [];
-    # ai = 0;
-    # for i in range(0,n):
-    #     posAp.append(0);
-    #     wnA.append(0);
-    # wn = [m[p]];
-
-    # print("p:",p,"weigth:", m[p])
-
-    # """
-    # posibilities: 14
-    # [[[0, 1, 2, 3, 4], 1440], [[0, 1, 2, 4], 1380], [[0, 1, 2], 1320], 
-    # [[0, 1, 3, 4], 840], [[0, 1, 3], 780], [[0, 1, 4], 780], [[0, 1], 720], 
-    # [[0, 2, 3, 4], 1020], [[0, 2, 3], 960], [[0, 2, 4], 960], [[0, 2], 900], 
-    # [[0, 3, 4], 420], [[0, 3], 360], [[0, 4], 360]]
-    # """
-
-    # allPosibilitiesFor(M, n, m, k, p, ai, pos, posA, posAp, wn, wnA);
-    # L = len(pos);
-    # print("posibilities:",len(pos))
-    # print(pos);
-
-    # posibilities = test(M);
-    # print("posibilities:",len(posibilities))
-    # print(posibilities);
-
+    
     # Hallamos la solución cuyo beneficio es el optimo para el problema.
-    sols = [];
-    for i in range(0,n):
-        sols.append(max_path(i));
-
-    sol = sols[0];
+    bSol = max_path(0);
+    best = bSol[1];
     for i in range(1,n):
-        if len(sols[i]) > 0:
-            if sol[1] < sols[i][1]:
-                sol = sols[i]
-
-    # print("sol",sol)
-
+        sol = max_path(i);
+        if sol[1] > best:
+            bSol = sol;
+            best = sol[1]; 
+        if best > mPos[i]:
+            break;
+        
+    print("sol",bSol);
     c = len(sol[0]);
-    totalT = sol[1];
+    totalT = best;
     sol = sol[0];
 
     if maxW > totalT:
@@ -641,10 +432,10 @@ print("--- execution time: {t} ---".format(t=end-start));
 input.close();
 
 # Se genera la salida en formato .txt
-# output = open("./sala_operaciones_salida.txt", "w");
-# output.write(f"{c} -- procedimientos\n");
-# output.write("{time} -- tiempo de uso\n".format(
-#     time=minToHrs(totalT)));
-# for i in range(0,c):
-#     output.write(f"{proc[sol[i]][0]}\n");
-# output.close();
+output = open("./sala_operaciones_salida.txt", "w");
+output.write(f"{c} -- procedimientos\n");
+output.write("{time} -- tiempo de uso\n".format(
+    time=minToHrs(totalT)));
+for i in range(0,c):
+    output.write(f"{proc[sol[i]][0]}\n");
+output.close();
