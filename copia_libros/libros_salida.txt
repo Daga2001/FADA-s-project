@@ -1,11 +1,7 @@
-30.0 -- dias requeridos
+740.0 -- dias requeridos
 lib1
-lib2
-lib3
-lib4
-lib5
-lib6
-lib7
-lib8
-lib9
-lib10
+lib2 - lib12
+lib13 - lib19
+lib20 - lib30
+lib31 - lib37
+lib38 - lib48

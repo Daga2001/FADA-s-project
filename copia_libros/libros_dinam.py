@@ -8,7 +8,7 @@ del escritor que tenga mas paginas asignadas.
 Hacer la copia de una pagina tiene una duracion de un dia.
 
 NOTA: un escritor le puede
-corresponder los libros que estan entre l0 y l3 a
+correspondcer los libros que estan entre l0 y l3 a
 otro escritor desde l4 y l6 y así sucesivamente.
 """
 
@@ -20,7 +20,7 @@ import copy
 import time;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada9.txt");
+input = open("./libros_entrada10.txt");
 content = input.readlines();
 
 """
