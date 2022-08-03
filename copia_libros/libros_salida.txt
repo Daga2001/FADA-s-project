@@ -1,5 +1,11 @@
-3300.0 -- dias requeridos
-lib1 - lib60
-lib61 - lib120
-lib121 - lib180
-lib181 - lib240
+30.0 -- dias requeridos
+lib1
+lib2
+lib3
+lib4
+lib5
+lib6
+lib7
+lib8
+lib9
+lib10

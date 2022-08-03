@@ -20,7 +20,7 @@ import copy
 import time;
 
 # Se abre y lee el archivo (entrada).
-input = open("./libros_entrada8.txt");
+input = open("./libros_entrada9.txt");
 content = input.readlines();
 
 """
@@ -50,7 +50,7 @@ def translate(W, sol):
         sols.append(W[sol[i]-c][sol[i]]);
     return sols;
 
-def posibilities(W, sol, pos, n, m):
+def posibilities(W, sol, pos, n, m, des):
     """
     entradas:
     W -> matriz de sumas.
@@ -61,6 +61,7 @@ def posibilities(W, sol, pos, n, m):
     que nos sirven como subproblemas para solucionar el problema global.
     n -> número de escritores.
     m -> número de libros.
+    des -> variable que sirve para acotar la cantidad de subproblemas.
 
     devuelve el rango de libros que se asignará a cada escritor en la 
     solución optima.
@@ -84,6 +85,12 @@ def posibilities(W, sol, pos, n, m):
     if sol[0] < 0:
         sol[0] = 0;
 
+    # acoto las soluciones
+    if des >= 10:
+        limit = des;
+    else:
+        limit = m-(n+2);
+
     # O((m-n!))
     for t in range(0, math.factorial(m-n+2)):
         # print("t",t)
@@ -104,7 +111,7 @@ def posibilities(W, sol, pos, n, m):
                 # se puede continuar?
                 if k == 0:
                     # print("n",n,"m",m,"m-(n+2)",m-(n+2),"sol[0]",sol[0])
-                    if sol[k] >= iSol[0] + n:
+                    if sol[k] >= limit:
                         # do nothing - stop!
                         pos.append([copy.deepcopy(sol), max(translate(W, sol))]);
                         return pos;
@@ -120,7 +127,7 @@ def posibilities(W, sol, pos, n, m):
                                 else:
                                     sol[c] = sol[c-1] + 1;
                             # print("2- theSol",sol)
-                            if sol[k] >= iSol[0] + n:
+                            if sol[k] >= limit:
                                 # do nothing - stop!
                                 pos.append([copy.deepcopy(sol), max(translate(W, sol))]);
                                 return pos;
@@ -153,42 +160,51 @@ def dynamic_sol(W, n, m):
     partialW = 0;
     writers = n;
     first_sol = [];
-    # toma la solución inicial - O(n)
-    for i in range(0,n-1):
-        if i == 0:
-            for j in range(0,m):
-                partialW += pages[j];
-                totalW -= pages[j];
-                prom = totalW/(writers-1);
-                # print("partial",partialW,"totalW",totalW,"prom",prom,"writers",writers)
-                # print("firts_sol",first_sol);
-                if partialW > prom:
-                    partialW = 0;
-                    writers -= 1;
-                    if j == m-1:
-                        j -= 1;
-                    first_sol.append(j);
-                    break;
-        else:
-            for j in range(first_sol[i-1]+1,m):
-                partialW += pages[j];
-                totalW -= pages[j];
-                prom = totalW/(writers-1);
-                # print("partial",partialW,"totalW",totalW,"prom",prom,"writers",writers)
-                # print("firts_sol",first_sol);
-                if partialW > prom:
-                    partialW = 0;
-                    writers -= 1;
-                    if j == m-1:
-                        j -= 1;
-                    first_sol.append(j);
-                    break;
-    first_sol.append(m-1);
-    
-    pos = [];
-    print("1- firts_sol",first_sol);
 
-    posibilities(W, copy.deepcopy(first_sol), pos, n-2, m);
+    des = math.floor(m/n);
+
+    # toma la solución inicial - O(n)
+
+    if des >= 10:
+        for i in range(0,n-1):
+            if i == 0:
+                for j in range(0,m):
+                    partialW += pages[j];
+                    totalW -= pages[j];
+                    prom = totalW/(writers-1);
+                    # print("partial",partialW,"totalW",totalW,"prom",prom,"writers",writers)
+                    # print("firts_sol",first_sol);
+                    if partialW > prom:
+                        partialW = 0;
+                        writers -= 1;
+                        if j == m-1:
+                            j -= 1;
+                        first_sol.append(j);
+                        break;
+            else:
+                for j in range(first_sol[i-1]+1,m):
+                    partialW += pages[j];
+                    totalW -= pages[j];
+                    prom = totalW/(writers-1);
+                    # print("partial",partialW,"totalW",totalW,"prom",prom,"writers",writers)
+                    # print("firts_sol",first_sol);
+                    if partialW > prom:
+                        partialW = 0;
+                        writers -= 1;
+                        if j == m-1:
+                            j -= 1;
+                        first_sol.append(j);
+                        break;
+        first_sol.append(m-1);
+    else:
+        for i in range(0,n-1):
+            first_sol.append(i);
+        first_sol.append(m-1);
+
+    pos = [];
+    print("1- firts_sol",first_sol,"des",des);
+
+    posibilities(W, copy.deepcopy(first_sol), pos, n-2, m, des);
     
     L = len(pos);
     # print(pos)
